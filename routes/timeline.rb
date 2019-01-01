@@ -6,8 +6,16 @@ class Timeline < Route
     @access_token = params['access_token']
     actor = fetch(params['account'])
     inbox = fetch(actor['inbox'])
-    first_page = fetch(inbox['first'])
-    items = first_page['orderedItems']
+
+    items = []
+    page = fetch(inbox['first'])
+
+    begin
+      items += page['orderedItems']
+      puts page['prev']
+      break unless page['prev']
+      page = fetch(page['prev'])
+    end while true
 
     items.reject! { |i| i['type'] == 'Delete' && i['actor'] == i['object'] }
 
